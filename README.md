@@ -1,16 +1,14 @@
-# Snake
+# Snake for Gym
+
 Snake environment for OpenAI Gym, written in Python 3.
 
-### Dependencies
+## Dependencies
 
-* Gym
-  > pip3 install gym
-
-* Pygame
-  > pip3 install pygame
-
+* [Gym](https://github.com/openai/gym)
+* [Pygame](https://www.pygame.org)
 
 Run it like a Gym environment:
+
 ```python
 from snake import SnakeEnv
 
@@ -26,22 +24,49 @@ for episode in range(10):
             break
 ```
 
-
 Play with it yourself!
-
 
 ```python
 env = SnakeEnv()
 env.interactive()
 ```
 
+## SnakeEnv
 
-Note: If you don't want to render your environment, in addition to not calling <code>env.render()</code>,
-it's best to initialize with render set to False.
-```python
-env = SnakeEnv(render=False)
-```
-This will disable pygame initialization.
+SnakeEnv takes in 5 parameters.
 
-Alternatives:
-  [PyGame Learning Environment](http://pygame-learning-environment.readthedocs.io/) is another great reinforcement learning environment. They have their own Snake game!
+1. Size: the game is composed of nxn blocks, and size specifies n.
+2. Reward: reward for eating a dot/fruit.
+3. Win: reward for winning (no more space in the map).
+4. Lose: reward for losing.
+5. FPS: frames per second (for rendering).
+6. Unit: specifies how big each block is (for rendering).
+
+Default: fps=10, size=20, unit=10, reward=1, win=10, lose=-1
+
+## Actions
+
+0: Keep the current direction
+
+1: Up
+
+2: Down
+
+3: Left
+
+4: Right
+
+## Observation
+
+Returns an nxn numpy array.
+
+* Empty blocks are represented by 0's
+* Snake body is represented by 1's
+* The reward is represented by 2.
+
+## Alternatives
+
+[PyGame Learning Environment](http://pygame-learning-environment.readthedocs.io/) also has a snake environment with other games as well.
+
+[YuriyGuts's snake for AI](https://github.com/YuriyGuts/snake-ai-reinforcement) has examples and GPU support.
+

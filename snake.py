@@ -7,18 +7,15 @@ class SnakeEnv(Env):
 
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, fps=10, size=20, unit=10, render=True):
+    def __init__(self, fps=10, size=20, unit=10, reward=1, win=10, lose=-1):
         """
         Screen size: size * unit px
         """
         self.fps = fps
         self.size = size
         self.unit = unit
-        self.shouldRender = render
-        if self.shouldRender:
-            pygame.init()
-            self.screen = pygame.display.set_mode((size * unit, size * unit))
-            self.clock = pygame.time.Clock()
+        self.initRender = True
+        self.screen, self.clock = None, None
 
         self.screenColor = (0, 0, 0)
         self.snakeColor = (255, 255, 255)
@@ -27,9 +24,9 @@ class SnakeEnv(Env):
         self.done = False
         self.snake = None
         self.reward = None
-        self.winReward = 100
-        self.loseReward = -100
-        self.dotReward = 1
+        self.winReward = win
+        self.loseReward = lose
+        self.dotReward = reward
 
         self.action_space = spaces.Discrete(5)
         self.observation_space = spaces.Box(low=0, high=2, shape=(size,size))
@@ -39,6 +36,7 @@ class SnakeEnv(Env):
         Returns initial observation
         """
         self.done = False
+        self.initRender = True
         mid = self.size // 2
         # starts at midpoint
         self.snake = Snake(self.size, mid, mid)
@@ -98,8 +96,11 @@ class SnakeEnv(Env):
 
     def render(self, mode='human'):
         if mode == 'human':
-            if not self.shouldRender:
-                raise Exception("You must initialize the environment with render set to true.")
+            if self.initRender:
+                pygame.init()
+                self.screen = pygame.display.set_mode((self.size * self.unit, self.size * self.unit))
+                self.clock = pygame.time.Clock()
+                self.initRender = False
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -120,17 +121,16 @@ class SnakeEnv(Env):
             super(SnakeEnv, self).render(mode=mode)
 
     def close(self):
-        print('Closing...')
+        # print('Closing...')
+        pass
 
     def interactive(self):
         """
         Time to play!
         """
-        if not self.shouldRender:
-            raise Exception("You must initialize the environment with render set to true.")
-
         self.reset()
         while not self.done:
+            self.render()
             action = 0
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -147,4 +147,3 @@ class SnakeEnv(Env):
             _, _, self.done, _ = self.step(action)
             if self.done:
                 break
-            self.render()
