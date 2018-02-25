@@ -10,7 +10,7 @@ Snake environment for OpenAI Gym, written in Python 3.
 Run it like a Gym environment:
 
 ```python
-from snake import SnakeEnv
+from snake.env import SnakeEnv
 
 env = SnakeEnv()
 
@@ -69,4 +69,3 @@ Returns an nxn numpy array.
 [PyGame Learning Environment](http://pygame-learning-environment.readthedocs.io/) also has a snake environment with other games as well.
 
 [YuriyGuts's snake for AI](https://github.com/YuriyGuts/snake-ai-reinforcement) has examples and GPU support.
-

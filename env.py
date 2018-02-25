@@ -1,5 +1,5 @@
 from gym import Env, spaces
-from models import Snake, Reward
+from snake.models import Snake, Reward
 import pygame, sys
 import numpy as np
 
