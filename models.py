@@ -1,7 +1,7 @@
 import pygame, sys, random
 
 class Snake:
-    def __init__(self, size, x, y, dir=1, length=3):
+    def __init__(self, size, x, y, length, dir):
         """
         size: size of the screen
         x,y: inital position
@@ -67,7 +67,7 @@ class Snake:
         for x, y, _ in self.body[1:]:
             if self.head[0] == x and self.head[1] == y:
                 selfCollision = True
-        return outOfBound or selfCollision
+        return (outOfBound, selfCollision)
 
 class Reward:
     def __init__(self, size, blocked):

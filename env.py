@@ -7,12 +7,16 @@ class SnakeEnv(Env):
 
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, fps=10, size=20, unit=10, reward=1, win=10, lose=-1):
+    def __init__(self, state_size=20, snake_size=3, reward_eat=1, reward_win=10, reward_lose=-1, reward_time=-0.01, fps=10, unit=10):
         """
-        Screen size: size * unit px
+        Screen state_size: state_size * unit px
         """
+        if snake_size > state_size // 2:
+            raise Exception("Snake size must be less than half of the state size (snake start at midpoint)")
+
         self.fps = fps
-        self.size = size
+        self.state_size = state_size
+        self.snake_size = snake_size
         self.unit = unit
         self.initRender = True
         self.screen, self.clock = None, None
@@ -24,12 +28,13 @@ class SnakeEnv(Env):
         self.done = False
         self.snake = None
         self.reward = None
-        self.winReward = win
-        self.loseReward = lose
-        self.dotReward = reward
+        self.winReward = reward_win
+        self.loseReward = reward_lose
+        self.dotReward = reward_eat
+        self.timeReward = reward_time
 
         self.action_space = spaces.Discrete(5)
-        self.observation_space = spaces.Box(low=0, high=2, shape=(size,size))
+        self.observation_space = spaces.Box(low=0, high=2, shape=(state_size,state_size))
 
     def reset(self):
         """
@@ -37,12 +42,12 @@ class SnakeEnv(Env):
         """
         self.done = False
         self.initRender = True
-        mid = self.size // 2
+        mid = self.state_size // 2
         # starts at midpoint
-        self.snake = Snake(self.size, mid, mid)
-        self.reward = Reward(self.size, self.snake.body)
+        self.snake = Snake(self.state_size, mid, mid, self.snake_size, 1)
+        self.reward = Reward(self.state_size, self.snake.body)
 
-        obs = np.zeros((self.size, self.size), dtype=int)
+        obs = np.zeros((self.state_size, self.state_size), dtype=int)
         if not self.snake.isDead():
             for x, y, _ in self.snake.body:
                 obs[x][y] = 1
@@ -65,7 +70,7 @@ class SnakeEnv(Env):
         if action not in range(5):
             raise Exception("Action must be from 0 to 4.")
 
-        points = 0
+        points = self.timeReward
         self.snake.changeDir(action)
         self.snake.move()
 
@@ -74,23 +79,26 @@ class SnakeEnv(Env):
             self.snake.grow()
             points += self.dotReward
             # Beat the game
-            if self.snake.length == self.size * self.size:
+            if self.snake.length == self.state_size * self.state_size:
                 points += self.winReward
                 self.done = True
             else:
-                self.reward = Reward(self.size, self.snake.body)
+                self.reward = Reward(self.state_size, self.snake.body)
 
-        if self.snake.isDead():
+        outOfBound, selfCollision = self.snake.isDead()
+        info = None
+
+        if outOfBound or selfCollision:
             points += self.loseReward
+            info = {'cause of death': 'out of bound' if outOfBound else 'self collision'}
             self.done = True
 
         # Update state
-        obs = np.zeros((self.size, self.size), dtype=int)
-        if not self.snake.isDead():
+        obs = np.zeros((self.state_size, self.state_size), dtype=int)
+        if not self.done:
             for x, y, _ in self.snake.body:
                 obs[x][y] = 1
         obs[self.reward.x][self.reward.y] = 2
-        info = None
 
         return (obs, points, self.done, info)
 
@@ -98,7 +106,7 @@ class SnakeEnv(Env):
         if mode == 'human':
             if self.initRender:
                 pygame.init()
-                self.screen = pygame.display.set_mode((self.size * self.unit, self.size * self.unit))
+                self.screen = pygame.display.set_mode((self.state_size * self.unit, self.state_size * self.unit))
                 self.clock = pygame.time.Clock()
                 self.initRender = False
 

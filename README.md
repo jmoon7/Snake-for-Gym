@@ -33,20 +33,24 @@ env.interactive()
 
 ## SnakeEnv
 
-SnakeEnv takes in 5 parameters.
+Initialization parameters
 
-1. Size: the game is composed of nxn blocks, and size specifies n.
-2. Reward: reward for eating a dot/fruit.
-3. Win: reward for winning (no more space in the map).
-4. Lose: reward for losing.
-5. FPS: frames per second (for rendering).
-6. Unit: specifies how big each block is (for rendering).
+1. state_size: the game is composed of nxn blocks, and size specifies n.
+2. snake_size: size of the snake
+3. reward_eat: reward for eating a dot/fruit.
+4. reward_win: reward for winning (max score).
+5. reward_lose: reward for losing.
+6. reward_time: time discount reward
+7. fps: frames per second (for rendering).
+8. unit: specifies how big each block is (for rendering).
 
-Default: fps=10, size=20, unit=10, reward=1, win=10, lose=-1
+Default: state_size=20, snake_size=3, reward_eat=1, reward_win=10, reward_lose=-1, reward_time=-0.01, fps=10, unit=10
+
+By default the snake starts at the midpoint and goes upwards.
 
 ## Actions
 
-0: Keep the current direction
+0: Do nothing
 
 1: Up
 
@@ -63,6 +67,18 @@ Returns an nxn numpy array.
 * Empty blocks are represented by 0's
 * Snake body is represented by 1's
 * The reward is represented by 2.
+
+## Info
+
+env.step also returns a dictionary named 'info'.
+
+If the game has ended, (i.e. done == True), then you can inspect info
+
+```python
+if done: print(info['cause of death'])
+```
+
+To examine the cause of death. It takes on one of two string values: 'out of bounds' or 'self collision'.
 
 ## Alternatives
 
